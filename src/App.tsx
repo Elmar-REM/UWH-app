@@ -310,6 +310,7 @@ export default function App() {
   // ---- saving ------------------------------------------------------------
   const [library, setLibrary] = useState<Play[]>(() => loadLibrary())
   const [cloudPlays, setCloudPlays] = useState<Play[]>([])
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null)
   const limit = PLAN_LIMITS[account.plan]
   useEffect(() => {
     if (dialog === 'library' && cloudEnabled && account.plan === 'pro') listCloudPlays().then(setCloudPlays).catch(() => {})
@@ -850,13 +851,14 @@ export default function App() {
                   <button
                     className="danger"
                     onClick={() => {
-                      if (confirm(`Delete "${p.name}"?`)) {
+                      if (pendingDelete === p.id) {
+                        setPendingDelete(null)
                         setLibrary(deleteLocal(p.id))
                         if (cloudEnabled && account.plan === 'pro') deleteCloudPlay(p.id).catch(() => {})
-                      }
+                      } else setPendingDelete(p.id)
                     }}
                   >
-                    Delete
+                    {pendingDelete === p.id ? 'Tap again to delete' : 'Delete'}
                   </button>
                 </div>
               </li>
